@@ -9,49 +9,49 @@ klass
     ;
 
 feature
-    : ID '(' ( params+=formal (',' params+=formal)* )? ')' ':' TYPE '{' expr '}'
-    | ID ':' TYPE ( '<-' expr )?
+    : ID '(' ( params+=formal (',' params+=formal)* )? ')' ':' TYPE '{' expr '}'   #metodo
+    | ID ':' TYPE ( '<-' expr )?                                                    #atribute
     ;
 
 formal
-    : ID ':' TYPE
+    : ID ':' TYPE    
     ;
 
 expr
     :
-    primary
-    | ID '(' ( params+=expr ( ',' params+=expr)* )? ')'
-    | IF expr THEN expr ELSE expr FI
-    | WHILE expr LOOP expr POOL
-    | expr '.' ID '(' ( params+=expr  ( ',' params+=expr)* )? ')'
-    | LET let_decl ( ',' let_decl )* IN expr
-    | CASE expr OF (case_stat)+ ESAC
-    | NEW TYPE
-    | '{' ( expr ';' )+ '}'
-    | expr ( '@' TYPE )? '.' ID '(' ( params+=expr  ( ',' params+=expr)* )? ')'
-    | '˜' expr
-    | ISVOID expr
-    | expr '*' expr
-    | expr '/' expr
-    | expr '+' expr
-    | expr '-' expr
-    | expr '<' expr
-    | expr '<=' expr
-    | expr '=' expr
-    | 'not' expr
-    | <assoc=right> ID '<-' expr
+    primary #base
+    | ID '(' ( params+=expr ( ',' params+=expr)* )? ')'     #call
+    | IF expr THEN expr ELSE expr FI            #if
+    | WHILE expr LOOP expr POOL                 #while
+    | expr '.' ID '(' ( params+=expr  ( ',' params+=expr)* )? ')' #call
+    | LET let_decl ( ',' let_decl )* IN expr   #let
+    | CASE expr OF (case_stat)+ ESAC           #case
+    | NEW TYPE                                 #new
+    | '{' ( expr ';' )+ '}'                    #block
+    | expr ( '@' TYPE )? '.' ID '(' ( params+=expr  ( ',' params+=expr)* )? ')' #at
+    | '˜' expr      #negative
+    | ISVOID expr   #isVoid
+    | expr '*' expr   #multiply	
+    | expr '/' expr    #division
+    | expr '+' expr    #add
+    | expr '-' expr   #minus		
+    | expr '<' expr   #lessThan
+    | expr '<=' expr  #lessEqual
+    | expr '=' expr   #equal
+    | 'not' expr      #not
+    | <assoc=right> ID '<-' expr    #assign
     ;
 
 case_stat:
-    ID ':' TYPE '=>' expr ';'
+    ID ':' TYPE '=>' expr ';'    #caseState
     ;
 
 let_decl:
-    ID ':' TYPE ('<-' expr )?
+    ID ':' TYPE ('<-' expr )?  #letDeclear
     ;
 
 primary:
-    '(' expr ')'
+    '(' expr ')'  
     | ID
     | INTEGER
     | STRING
