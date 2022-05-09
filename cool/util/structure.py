@@ -2,6 +2,8 @@ import unittest
 from _collections_abc import MutableMapping
 from collections import OrderedDict
 
+from util.exceptions import missingclass
+
 _allClasses = {}
 
 
@@ -52,7 +54,12 @@ class Klass():
             # Si encuentro la clase que estoy definiendo -> ciclo
             if up == self.name:
                 raise HierarchyException
-            up = _allClasses[up].inherits
+            try:
+                up = _allClasses[up].inherits
+            except KeyError:
+                # Explanation: MissingClass happens whenever we inherit from a nonexistent class.
+                # Going up the class hierarchy tree and not finding a key means the inherited class is nonexistent.
+                raise missingclass()
 
     def addAttribute(self, name, type):
         try:

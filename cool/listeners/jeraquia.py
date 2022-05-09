@@ -13,7 +13,7 @@ class jeraquiaListener(coolListener):
     # cualquier pruebas de la sigueinte requere los tipos de datos armados
     def enterKlass(self, ctx: coolParser.KlassContext):
         clase = None
-        if ctx.TYPE(1) != None:
+        if ctx.TYPE(1) is not None:
             clase = Klass(ctx.TYPE(0).getText(), ctx.TYPE(1).getText())
         else:
             clase = Klass(ctx.TYPE(0).getText())
