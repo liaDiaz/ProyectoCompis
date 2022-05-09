@@ -51,12 +51,12 @@ let_decl:
     ;
 
 primary:
-    '(' expr ')'  
-    | ID
-    | INTEGER
-    | STRING
-    | TRUE
-    | FALSE
+    '(' expr ')'            #subexpresion
+    | ID                    #variable
+    | INTEGER               #int
+    | STRING                #string
+    | TRUE                  #boolTrue
+    | FALSE                 #boolFalse
     ;
 
 fragment A : [aA] ;
