@@ -23,3 +23,7 @@ class etapaDos(coolListener):
             raise badequalitytest()
         # if((ctx.expr(0).Tipo.name == 'Int' ) and ((ctx.expr(1).Tipo.name =='BoolTrue') or (ctx.expr(1).Tipo.name =='BoolFalse'))):
         #     raise badequalitytest2()
+
+    def enterMetodo(self, ctx: coolParser.MetodoContext):
+        if ctx.TYPE().getText() == "SELF_TYPE":
+            raise selftypebadreturn()
