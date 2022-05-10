@@ -1,0 +1,2 @@
+class HierarchyException(Exception):
+    pass
