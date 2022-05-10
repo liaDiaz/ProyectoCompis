@@ -2,7 +2,7 @@ import unittest
 from _collections_abc import MutableMapping
 from collections import OrderedDict
 
-from util.exceptions import missingclass
+from util.exceptions import missingclass, redefinedclass
 
 _allClasses = {}
 
@@ -320,8 +320,14 @@ class BaseKlasses(unittest.TestCase):
 Mandar llamar a setBaseKlasses() para crear las declaraciones de las 5 clases básicas
 '''
 
+def klassRepeats(klass):
+    return klass in _allClasses
 
 def setBaseKlasses():
+    # If we've already added the base classes, do not run again.
+    if "Object" in _allClasses:
+        return
+
     k = Klass('Object')
     k.addMethod('abort', Method('Object'))
     k.addMethod('type_name', Method('Object'))
@@ -342,6 +348,10 @@ def setBaseKlasses():
 
     k = Klass('Bool')
 
+def getAllClasses():
+    return _allClasses
+def clearClassTree():
+    _allClasses.clear()
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)

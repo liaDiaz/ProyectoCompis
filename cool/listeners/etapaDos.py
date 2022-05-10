@@ -26,7 +26,8 @@ class etapaDos(coolListener):
 
     def enterMetodo(self, ctx: coolParser.MetodoContext):
         pass
+        # TODO CHECK SELFTYPE actual type
         # if ctx.TYPE().getText() == "SELF_TYPE":
-            # Explanation: We cannot return SELF_TYPE
-            # We throw this exception whenever our return type is SELF_TYPE
-            # raise selftypebadreturn()
+        # Explanation: We cannot return SELF_TYPE from a class that returns something else than SELF_TYPE
+        # We throw this exception whenever our return type is SELF_TYPE
+        # raise selftypebadreturn()

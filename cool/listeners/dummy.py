@@ -11,28 +11,10 @@ class dummyListener(coolListener):
     def enterKlass(self, ctx: coolParser.KlassContext):
         if ctx.TYPE(0).getText() == 'Main':
             self.main = True
-        # else:
-        #     raise nomain()
-
-        #  si hay herencia
-        if ctx.TYPE(1) != None:
-            if ctx.TYPE(1).getText() == 'SELF_TYPE':
-                raise inheritsselftype()
-            if ctx.TYPE(1).getText() == 'Bool':
-                raise inheritsbool()
-            if ctx.TYPE(1).getText() == 'String':
-                raise inheritsstring()
-        # si no hay herencia
-        else:
-            if ctx.TYPE(0).getText() == 'Int':
-                raise badredefineint()
-            if ctx.TYPE(0).getText() == 'Object':
-                raise redefinedobject()
-            if ctx.TYPE(0).getText() == 'SELF_TYPE':
-                raise selftyperedeclared()
 
     def exitProgram(self, ctx: coolParser.KlassContext):
-        if (not self.main):
+        # Moved classchecks to jerarquia.py
+        if not self.main:
             raise nomain()
 
     def enterAtribute(self, ctx: coolParser.AtributeContext):

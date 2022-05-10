@@ -13,8 +13,8 @@ def compile(file):
 
     walker = ParseTreeWalker()
     walker.walk(jeraquiaListener(), tree)
-    walker.walk(etapaDos(), tree)
     walker.walk(dummyListener(), tree)
+    walker.walk(etapaDos(), tree)
 
 
 def dummy():

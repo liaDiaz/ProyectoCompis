@@ -1,6 +1,8 @@
 from antlr.coolListener import coolListener
 from antlr.coolParser import coolParser
-from util.structure import Klass, lookupClass, setBaseKlasses
+from util.exceptions import inheritsselftype, inheritsbool, inheritsstring, badredefineint, redefinedobject, \
+    selftyperedeclared, redefinedclass
+from util.structure import Klass, lookupClass, setBaseKlasses, klassRepeats
 
 
 class jeraquiaListener(coolListener):
@@ -13,6 +15,27 @@ class jeraquiaListener(coolListener):
     # cualquier pruebas de la sigueinte requere los tipos de datos armados
     def enterKlass(self, ctx: coolParser.KlassContext):
         clase = None
+        #  si hay herencia
+        if ctx.TYPE(1) is not None:
+            if ctx.TYPE(1).getText() == 'SELF_TYPE':
+                raise inheritsselftype()
+            if ctx.TYPE(1).getText() == 'Bool':
+                raise inheritsbool()
+            if ctx.TYPE(1).getText() == 'String':
+                raise inheritsstring()
+        # si no hay herencia
+        else:
+            if ctx.TYPE(0).getText() == 'Int':
+                raise badredefineint()
+            if ctx.TYPE(0).getText() == 'Object':
+                raise redefinedobject()
+            if ctx.TYPE(0).getText() == 'SELF_TYPE':
+                raise selftyperedeclared()
+
+        if klassRepeats(ctx.TYPE(0).getText()) and ctx.TYPE(0).getText() != "Main":
+            print("**" + ctx.TYPE(0).getText() + "**")
+            raise redefinedclass()
+
         if ctx.TYPE(1) is not None:
             clase = Klass(ctx.TYPE(0).getText(), ctx.TYPE(1).getText())
         else:
@@ -40,4 +63,9 @@ class jeraquiaListener(coolListener):
         ctx.Tipo = lookupClass("Bool")
 
     def exitBase(self, ctx: coolParser.BaseContext):
-        ctx.Tipo = ctx.getChild(0).Tipo
+        # FIXME Temporary fix, since VariableContext is not defined.
+        if not type(ctx.getChild(0)) is coolParser.VariableContext:
+            ctx.Tipo = ctx.getChild(0).Tipo
+
+    # def exitVariable(self, ctx: coolParser.VariableContext):
+    # ctx.Tipo = lookupClass("Variable")
