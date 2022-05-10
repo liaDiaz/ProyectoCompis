@@ -14,8 +14,8 @@ def compile(file):
     tree = parser.program()
 
     walker = ParseTreeWalker()
-    walker.walk(HierarchyListener(), tree)
     walker.walk(Checks01Listener(), tree)
+    walker.walk(HierarchyListener(), tree)
     walker.walk(Checks02Listener(), tree)
 
 
