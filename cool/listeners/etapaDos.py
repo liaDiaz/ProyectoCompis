@@ -1,6 +1,7 @@
 from antlr.coolListener import coolListener
 from antlr.coolParser import coolParser
 from util.exceptions import *
+from util.structure import getAllClasses
 
 
 class etapaDos(coolListener):
@@ -25,6 +26,9 @@ class etapaDos(coolListener):
         #     raise badequalitytest2()
 
     def enterMetodo(self, ctx: coolParser.MetodoContext):
+        if ctx.TYPE().getText() not in getAllClasses():
+            # Explanation: Types are registered in the Class Tree. If the type isn't defined, it won't be in it.
+            raise returntypenoexist()
         pass
         # TODO CHECK SELFTYPE actual type
         # if ctx.TYPE().getText() == "SELF_TYPE":
