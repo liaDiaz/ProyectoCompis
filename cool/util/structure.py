@@ -19,10 +19,12 @@ class Method():
     """
     Se usa una tabla de símbolos lineal para
     almacenar los tipos de los parámetros.
+    m1 = Method("Integer")
+    m2 = Method("String", [("a", "Integer"), ("b", "Boolean")])
     """
 
-    def __init__(self, type, params=None):
-        self.type = type
+    def __init__(self, returntype, params=None):
+        self.type = returntype
         self.params = SymbolTable()
         if params:
             for x, y in params:
@@ -320,8 +322,10 @@ class BaseKlasses(unittest.TestCase):
 Mandar llamar a setBaseKlasses() para crear las declaraciones de las 5 clases básicas
 '''
 
+
 def klassRepeats(klass):
     return klass in _allClasses
+
 
 def setBaseKlasses():
     # If we've already added the base classes, do not run again.
@@ -348,10 +352,19 @@ def setBaseKlasses():
 
     k = Klass('Bool')
 
+
 def getAllClasses():
     return _allClasses
+
+
 def clearClassTree():
     _allClasses.clear()
+
+
+def getKlass(classname):
+    #FIXME It shouldn't return none.
+    return _allClasses.get(classname, None)
+
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)

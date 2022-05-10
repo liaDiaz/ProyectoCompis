@@ -14,7 +14,7 @@ feature
     ;
 
 formal
-    : ID ':' TYPE    
+    : ID ':' TYPE    #formal_Expression
     ;
 
 expr
@@ -28,7 +28,7 @@ expr
     | CASE expr OF (case_stat)+ ESAC           #case
     | NEW TYPE                                 #new
     | '{' ( expr ';' )+ '}'                    #block
-    | expr ( '@' TYPE )? '.' ID '(' ( params+=expr  ( ',' params+=expr)* )? ')' #at
+    | expr ( '@' TYPE )? '.' ID '(' ( params+=expr  ( ',' params+=expr)* )? ')' #procedureCall
     | '˜' expr      #negative
     | ISVOID expr   #isVoid
     | expr '*' expr   #multiply	

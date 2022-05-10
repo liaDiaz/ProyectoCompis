@@ -2,7 +2,7 @@ from antlr.coolListener import coolListener
 from antlr.coolParser import coolParser
 from util.exceptions import inheritsselftype, inheritsbool, inheritsstring, badredefineint, redefinedobject, \
     selftyperedeclared, redefinedclass
-from util.structure import Klass, lookupClass, setBaseKlasses, klassRepeats
+from util.structure import Klass, lookupClass, setBaseKlasses, klassRepeats, Method
 
 
 class jeraquiaListener(coolListener):
@@ -10,7 +10,7 @@ class jeraquiaListener(coolListener):
     def __init__(self):
         # esto es para las clases basicas existan, declara la clase con atributos y metodos
         setBaseKlasses()
-        self.currentClass = None
+        self.currentClass: Klass = None
 
     # cualquier pruebas de la sigueinte requere los tipos de datos armados
     def enterKlass(self, ctx: coolParser.KlassContext):
@@ -44,10 +44,22 @@ class jeraquiaListener(coolListener):
         self.currentClass = clase
 
     def enterAtribute(self, ctx: coolParser.AtributeContext):
-
         self.currentClass.addAttribute(ctx.ID().getText(), lookupClass(ctx.TYPE().getText()))
 
     # add metod metodo tipo de regreso y lista de parametros que recibe // addmethod
+
+    def exitMetodo(self, ctx: coolParser.MetodoContext):
+        formal = None
+        if ctx.params:
+            formal = set()
+            for param in ctx.params:
+                import antlr
+                if type(param) == antlr.coolParser.coolParser.Formal_ExpressionContext:
+                    formal.add(frozenset([param.ID().getText(), param.TYPE().getText()]))
+
+        # ctx.params[0].TYPE().getText()
+        m = Method(ctx.TYPE(), formal)
+        self.currentClass.addMethod(ctx.ID(), m)
 
     def enterInt(self, ctx: coolParser.IntContext):
         ctx.Tipo = lookupClass("Int")

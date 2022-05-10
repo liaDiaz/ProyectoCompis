@@ -1,12 +1,15 @@
 from antlr.coolListener import coolListener
 from antlr.coolParser import coolParser
 from util.exceptions import *
-from util.structure import getAllClasses
+from util.structure import getAllClasses, Klass, getKlass
 
 
 class etapaDos(coolListener):
     def __init__(self):
-        pass
+        self.currentClass: Klass = None
+
+    def enterKlass(self, ctx: coolParser.KlassContext):
+        self.currentClass = getKlass(ctx.KLASS())
 
     def exitAdd(self, ctx: coolParser.AddContext):
         # validar es int
@@ -24,6 +27,12 @@ class etapaDos(coolListener):
             raise badequalitytest()
         # if((ctx.expr(0).Tipo.name == 'Int' ) and ((ctx.expr(1).Tipo.name =='BoolTrue') or (ctx.expr(1).Tipo.name =='BoolFalse'))):
         #     raise badequalitytest2()
+
+    def enterProcedureCall(self, ctx:coolParser.ProcedureCallContext):
+        try:
+            self.currentClass.lookupMethod(ctx.ID().getText())
+        except KeyError:
+            raise baddispatch()
 
     def enterMetodo(self, ctx: coolParser.MetodoContext):
         if ctx.TYPE().getText() not in getAllClasses():
