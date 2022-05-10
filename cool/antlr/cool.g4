@@ -28,7 +28,7 @@ expr
     | CASE expr OF (case_stat)+ ESAC           #case
     | NEW TYPE                                 #new
     | '{' ( expr ';' )+ '}'                    #block
-    | expr ( '@' TYPE )? '.' ID '(' ( params+=expr  ( ',' params+=expr)* )? ')' #procedureCall
+    | expr ( '@' TYPE )? '.' ID '(' ( params+=expr  ( ',' params+=expr)* )? ')' #parentCall
     | '˜' expr      #negative
     | ISVOID expr   #isVoid
     | expr '*' expr   #multiply	

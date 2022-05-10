@@ -4,7 +4,7 @@ from util.Klass import Klass, setBaseKlasses
 from util.KlassRegistry import getKlassByString, klassRepeats
 from util.Method import Method
 from util.exceptions import inheritsselftype, inheritsbool, inheritsstring, badredefineint, redefinedobject, \
-    selftyperedeclared, redefinedclass, dupformals, attrbadinit, attroverride, signaturechange
+    selftyperedeclared, redefinedclass, dupformals, attrbadinit, attroverride, signaturechange, overridingmethod4
 
 
 class HierarchyListener(coolListener):
@@ -45,7 +45,7 @@ class HierarchyListener(coolListener):
                         # Explanation: We keep track of the params that are parsed from text
                         # If any of them repeat, we simply raise the exception
                         raise dupformals()
-                    parsed = frozenset([param.ID().getText(), param.TYPE().getText()])
+                    parsed = frozenset([param.TYPE().getText(), param.ID().getText()])
                     seen_param_names.add(param.ID().getText())
                     parsedparams.add(parsed)
         return parsedparams
@@ -55,15 +55,25 @@ class HierarchyListener(coolListener):
         parsedMethod = Method(ctx.TYPE(), parsedparams)
         # Check for method override
         self.__signaturechangecheck(ctx, parsedMethod)
+        self.__differentparamtypeoverridecheck(ctx, parsedMethod)
         self.currentClass.addMethod(ctx.ID().getText(), parsedMethod)
+
+    def __differentparamtypeoverridecheck(self, ctx, parsedMethod):
+        try:
+            overridenmethod = self.currentClass.lookupMethod(ctx.ID().getText())
+            # if match, check params are the same for current method
+            if parsedMethod.params.values() != overridenmethod.params.values():
+                raise overridingmethod4()
+        except KeyError:
+            # No override
+            pass
 
     def __signaturechangecheck(self, ctx, parsedMethod):
         try:
             overridenmethod = self.currentClass.lookupMethod(ctx.ID().getText())
             # if match, check params are the same for current method
-            if parsedMethod.params != overridenmethod.params:
+            if len(parsedMethod.params) != len(overridenmethod.params):
                 raise signaturechange()
-
         except KeyError:
             # No override
             pass
@@ -82,8 +92,9 @@ class HierarchyListener(coolListener):
         ctx.Tipo = getKlassByString("Bool")
 
     def exitBase(self, ctx: coolParser.BaseContext):
-        # FIXME Temporary fix, since VariableContext is not defined.
-        if not type(ctx.getChild(0)) is coolParser.VariableContext:
+        # TODO FIXME Temporary fix, since VariableContext and SubexpresionContext is not defined.
+        if not type(ctx.getChild(0)) is coolParser.VariableContext and \
+                not type(ctx.getChild(0)) is coolParser.SubexpresionContext:
             ctx.Tipo = ctx.getChild(0).Tipo
 
     @staticmethod
