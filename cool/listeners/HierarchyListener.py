@@ -4,7 +4,7 @@ from util.Klass import Klass, setBaseKlasses
 from util.KlassRegistry import getKlassByString, klassRepeats
 from util.Method import Method
 from util.exceptions import inheritsselftype, inheritsbool, inheritsstring, badredefineint, redefinedobject, \
-    selftyperedeclared, redefinedclass, dupformals, attrbadinit, attroverride
+    selftyperedeclared, redefinedclass, dupformals, attrbadinit, attroverride, signaturechange
 
 
 class HierarchyListener(coolListener):
@@ -34,7 +34,7 @@ class HierarchyListener(coolListener):
         self.__attroverride(ctx)
         self.currentClass.addAttribute(ctx.ID().getText(), getKlassByString(ctx.TYPE().getText()))
 
-    def exitMetodo(self, ctx: coolParser.MetodoContext):
+    def __parseParams(self, ctx):
         parsedparams = None
         if ctx.params:
             parsedparams = set()
@@ -48,9 +48,25 @@ class HierarchyListener(coolListener):
                     parsed = frozenset([param.ID().getText(), param.TYPE().getText()])
                     seen_param_names.add(param.ID().getText())
                     parsedparams.add(parsed)
+        return parsedparams
 
-        m = Method(ctx.TYPE(), parsedparams)
-        self.currentClass.addMethod(ctx.ID(), m)
+    def exitMetodo(self, ctx: coolParser.MetodoContext):
+        parsedparams = self.__parseParams(ctx)
+        parsedMethod = Method(ctx.TYPE(), parsedparams)
+        # Check for method override
+        self.__signaturechangecheck(ctx, parsedMethod)
+        self.currentClass.addMethod(ctx.ID().getText(), parsedMethod)
+
+    def __signaturechangecheck(self, ctx, parsedMethod):
+        try:
+            overridenmethod = self.currentClass.lookupMethod(ctx.ID().getText())
+            # if match, check params are the same for current method
+            if parsedMethod.params != overridenmethod.params:
+                raise signaturechange()
+
+        except KeyError:
+            # No override
+            pass
 
     def enterInt(self, ctx: coolParser.IntContext):
         ctx.Tipo = getKlassByString("Int")

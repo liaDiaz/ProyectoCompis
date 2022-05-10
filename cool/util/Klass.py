@@ -70,7 +70,7 @@ class Klass:
         else:
             return getKlassByString(self.inherits).lookupAttribute(name)
 
-    def lookupMethod(self, name: str):
+    def lookupMethod(self, name: str) -> Method:
         if name in self.methods:
             return self.methods[name]
         elif self.name == "Object":
