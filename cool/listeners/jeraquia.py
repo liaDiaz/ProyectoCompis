@@ -57,7 +57,6 @@ class jeraquiaListener(coolListener):
                 if type(param) == antlr.coolParser.coolParser.Formal_ExpressionContext:
                     formal.add(frozenset([param.ID().getText(), param.TYPE().getText()]))
 
-        # ctx.params[0].TYPE().getText()
         m = Method(ctx.TYPE(), formal)
         self.currentClass.addMethod(ctx.ID(), m)
 
