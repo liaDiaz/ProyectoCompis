@@ -9,7 +9,7 @@ class etapaDos(coolListener):
         self.currentClass: Klass = None
 
     def enterKlass(self, ctx: coolParser.KlassContext):
-        self.currentClass = getKlass(ctx.KLASS())
+        self.currentClass = getKlass(ctx.TYPE(0).getText())
 
     def exitAdd(self, ctx: coolParser.AddContext):
         # validar es int
@@ -28,10 +28,15 @@ class etapaDos(coolListener):
         # if((ctx.expr(0).Tipo.name == 'Int' ) and ((ctx.expr(1).Tipo.name =='BoolTrue') or (ctx.expr(1).Tipo.name =='BoolFalse'))):
         #     raise badequalitytest2()
 
-    def enterProcedureCall(self, ctx:coolParser.ProcedureCallContext):
+    def enterCall(self, ctx: coolParser.CallContext):
         try:
             self.currentClass.lookupMethod(ctx.ID().getText())
         except KeyError:
+            # Explanation: This is an exploit on the lookupMethod functionality:
+            # A method can only be called if it's on the classes above them
+            # BadDispatch checks for methods called in parent classes, defined on child classes.
+            # This means we only need to check every parent, and if not found, raise the exception
+            # Although this could mean the method doesn't even EXISTS
             raise baddispatch()
 
     def enterMetodo(self, ctx: coolParser.MetodoContext):
