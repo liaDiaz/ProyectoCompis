@@ -4,7 +4,7 @@ from util.Klass import Klass, setBaseKlasses
 from util.KlassRegistry import getKlassByString, klassRepeats
 from util.Method import Method
 from util.exceptions import inheritsselftype, inheritsbool, inheritsstring, badredefineint, redefinedobject, \
-    selftyperedeclared, redefinedclass, dupformals, attrbadinit
+    selftyperedeclared, redefinedclass, dupformals, attrbadinit, attroverride
 
 
 class HierarchyListener(coolListener):
@@ -31,6 +31,7 @@ class HierarchyListener(coolListener):
 
     def enterAtribute(self, ctx: coolParser.AtributeContext):
         self.__attrbadinitcheck(ctx)
+        self.__attroverride(ctx)
         self.currentClass.addAttribute(ctx.ID().getText(), getKlassByString(ctx.TYPE().getText()))
 
     def exitMetodo(self, ctx: coolParser.MetodoContext):
@@ -89,6 +90,22 @@ class HierarchyListener(coolListener):
         if klassRepeats(mainType):
             raise redefinedclass()
 
+    def __attroverride(self, ctx):
+        try:
+            variablename = ctx.ID().getText()
+            # First, check for the attribute existing on the class tree
+            # A keyerror would mean the variable isn't defined
+            # FIXME method params will not be checked.
+            self.currentClass.lookupAttribute(variablename)
+            # Secondly, if the attribute is on the class tree, but it's *not*
+            # on the current class, it means we're redefining a parent attribute.
+            if not self.currentClass.getOwnAttribute(variablename):
+                # Explanation: See above
+                raise attroverride()
+        except KeyError:
+            # Explanation: See above
+            pass
+
     def __attrbadinitcheck(self, ctx):
         # If this is an add attribute with the shape [ID : TYPE  '<-' expr]
         # where expr is a variable, check if said variable exists on the class
@@ -96,7 +113,11 @@ class HierarchyListener(coolListener):
             if type(ctx.expr()) == coolParser.BaseContext:
                 if type(ctx.expr().children[0]) == coolParser.VariableContext:
                     try:
-                        self.currentClass.lookupAttribute(ctx.expr().children[0].getText())
+                        variablename = ctx.expr().children[0].getText()
+                        # First, check for the attribute existing on the class tree
+                        # A keyerror would mean the variable isn't defined
+                        # FIXME method params will not be checked.
+                        self.currentClass.lookupAttribute(variablename)
                     except KeyError:
+                        # Explanation: See above
                         raise attrbadinit()
-

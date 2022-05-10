@@ -48,6 +48,16 @@ class Klass:
     def addMethod(self, name: str, method: Method):
         self.methods[name] = method
 
+    def getOwnAttribute(self, name: str):
+        """
+        Lookup an attribute on this class only
+        :param name:  A string, with the name of the param to search
+        :return: The type of the param if it exists, None if it doesn't
+        """
+        if name in self.attributes:
+            return self.attributes[name]
+        return None
+
     def lookupAttribute(self, name: str):
         """
         Buscar un atributo en una clase, si no se encuentra, resolver
