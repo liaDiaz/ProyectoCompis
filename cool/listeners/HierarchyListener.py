@@ -27,12 +27,15 @@ class HierarchyListener(coolListener):
             clase = Klass(mainType, inheritance)
         else:
             clase = Klass(mainType)
+        ctx.Tipo = clase
         self.currentClass = clase
 
     def enterAtribute(self, ctx: coolParser.AtributeContext):
         self.__attrbadinitcheck(ctx)
         self.__attroverride(ctx)
-        self.currentClass.addAttribute(ctx.ID().getText(), getKlassByString(ctx.TYPE().getText()))
+        attrtype = ctx.TYPE().getText()
+        self.currentClass.addAttribute(ctx.ID().getText(), attrtype)
+        ctx.Tipo = getKlassByString(attrtype)
 
     def __parseParams(self, ctx):
         parsedparams = None

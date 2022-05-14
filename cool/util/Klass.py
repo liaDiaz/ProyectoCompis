@@ -91,6 +91,9 @@ class Klass:
         else:
             return self.conforms(getKlassByString(B.inherits))
 
+    def __str__(self):
+        return self.name
+
 
 def setBaseKlasses():
     """

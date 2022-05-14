@@ -34,7 +34,7 @@ def test_dupformals():
 
 def test_letbadinit():
     with pytest.raises(letbadinit):
-        compile('resources/semantic/input/letbadini.cool')
+        compile('resources/semantic/input/letbadinit.cool')
 
 def test_lubtest():
     with pytest.raises(lubtest):
