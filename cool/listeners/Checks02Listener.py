@@ -13,6 +13,7 @@ class Checks02Listener(coolListener):
         # Since we could have nesting, a nesting counter is neccesary.
         self.inwhile = False
         self.inwhileNesting = 0
+        self.tipos=set()
 
     def enterKlass(self, ctx: coolParser.KlassContext):
         self.currentClass = getKlass(ctx.TYPE(0).getText())
@@ -31,8 +32,8 @@ class Checks02Listener(coolListener):
             ctx.Tipo = ctx.expr(0).Tipo
         else:
             raise badequalitytest()
-        # if((ctx.expr(0).Tipo.name == 'Int' ) and ((ctx.expr(1).Tipo.name =='BoolTrue') or (ctx.expr(1).Tipo.name =='BoolFalse'))):
-        #     raise badequalitytest2()
+        if((ctx.expr(0).Tipo.name == 'Int' ) and ((ctx.expr(1).Tipo.name =='BoolTrue') or (ctx.expr(1).Tipo.name =='BoolFalse'))):
+            raise badequalitytest2()
 
     def enterCall(self, ctx: coolParser.CallContext):
         try:
@@ -73,3 +74,9 @@ class Checks02Listener(coolListener):
         if ctx.TYPE().getText() not in getAllKlasses():
             # Explanation: Types are registered in the Class Tree. If the type isn't defined, it won't be in it.
             raise returntypenoexist()
+    def enterCaseState(self, ctx: coolParser.CaseStateContext):
+        if ctx.TYPE().getText() in self.tipos:
+            raise caseidenticalbranch()
+        else:
+            self.tipos.add(ctx.TYPE().getText())
+        

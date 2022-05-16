@@ -56,6 +56,9 @@ class HierarchyListener(coolListener):
 
     def enterBoolFalse(self, ctx: coolParser.BoolTrueContext):
         ctx.Tipo = getKlassByString("Bool")
+    
+    def enterSubexpresion(self, ctx: coolParser.SubexpresionContext):
+        ctx.Tipo=ctx.expr()
 
     def exitBase(self, ctx: coolParser.BaseContext):
         # TODO FIXME Temporary fix, since VariableContext and SubexpresionContext is not defined.
