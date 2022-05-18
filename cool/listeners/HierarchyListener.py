@@ -35,12 +35,10 @@ class HierarchyListener(coolListener):
         attroverride(self.currentClass, ctx)
         attrtype = ctx.TYPE().getText()
         #curent klass agragake el atributo
-    
         self.currentClass.addAttribute(ctx.ID().getText(), attrtype)
         #seteando el tipo
         ctx.Tipo = getKlassByString(attrtype)
-        #setear tipo variable (ID)
-        ctx.getChild(0).Tipo = getKlassByString(ctx.getChild(1).getText())
+
 
      
 
@@ -64,11 +62,8 @@ class HierarchyListener(coolListener):
     def enterBoolFalse(self, ctx: coolParser.BoolTrueContext):
         ctx.Tipo = getKlassByString("Bool")
 
-    def enterSubexpresion(self, ctx: coolParser.SubexpresionContext):
-        ctx.Tipo = ctx.expr().Tipo
-
     def exitBase(self, ctx: coolParser.BaseContext):
-        # # TODO FIXME Temporary fix, since VariableContext and SubexpresionContext is not defined.
-        # if not type(ctx.getChild(0)) is coolParser.VariableContext and \
-        #         not type(ctx.getChild(0)) is coolParser.SubexpresionContext:
+        # TODO FIXME Temporary fix, since VariableContext and SubexpresionContext is not defined.
+        if not type(ctx.getChild(0)) is coolParser.VariableContext and \
+                not type(ctx.getChild(0)) is coolParser.SubexpresionContext:
             ctx.Tipo = ctx.getChild(0).Tipo
