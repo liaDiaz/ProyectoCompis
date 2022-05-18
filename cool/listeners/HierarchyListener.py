@@ -40,7 +40,7 @@ class HierarchyListener(coolListener):
         #seteando el tipo
         ctx.Tipo = getKlassByString(attrtype)
         #setear tipo variable (ID)
-        ctx.getChild(0).Tipo = ctx.getChild(1).Tipo
+        ctx.getChild(0).Tipo = getKlassByString(ctx.getChild(1).getText())
 
      
 
@@ -68,8 +68,7 @@ class HierarchyListener(coolListener):
         ctx.Tipo = ctx.expr().Tipo
 
     def exitBase(self, ctx: coolParser.BaseContext):
+        # # TODO FIXME Temporary fix, since VariableContext and SubexpresionContext is not defined.
         # if not type(ctx.getChild(0)) is coolParser.VariableContext and \
         #         not type(ctx.getChild(0)) is coolParser.SubexpresionContext:
-        #     ctx.Tipo = ctx.getChild(0).Tipo
-        ctx.Tipo = ctx.getChild(0).Tipo
-
+            ctx.Tipo = ctx.getChild(0).Tipo
