@@ -79,4 +79,6 @@ class Checks02Listener(coolListener):
             raise caseidenticalbranch()
         else:
             self.tipos.add(ctx.TYPE().getText())
-        
+    def enterParentCall(self, ctx: coolParser.ParentCallContext):
+        if self.currentClass.lookupMethod(ctx.TYPE.getText()) and self.currentClass.conforms(ctx.TYPE.getText()):
+            raise badstaticdispatch   
