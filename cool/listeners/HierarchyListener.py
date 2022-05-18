@@ -68,6 +68,8 @@ class HierarchyListener(coolListener):
         ctx.Tipo = ctx.expr().Tipo
 
     def exitBase(self, ctx: coolParser.BaseContext):
-        if not type(ctx.getChild(0)) is coolParser.VariableContext and \
-                not type(ctx.getChild(0)) is coolParser.SubexpresionContext:
-            ctx.Tipo = ctx.getChild(0).Tipo
+        # if not type(ctx.getChild(0)) is coolParser.VariableContext and \
+        #         not type(ctx.getChild(0)) is coolParser.SubexpresionContext:
+        #     ctx.Tipo = ctx.getChild(0).Tipo
+        ctx.Tipo = ctx.getChild(0).Tipo
+
