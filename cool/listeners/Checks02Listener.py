@@ -1,11 +1,14 @@
 from antlr.coolListener import coolListener
 from antlr.coolParser import coolParser
 from util.Klass import Klass
-from util.KlassRegistry import getAllKlasses, getKlass
+from util.KlassRegistry import getAllKlasses, getKlass, getKlassByString
 from util.exceptions import *
+from util.internal.SymbolTableWithScopes import SymbolTableWithScopes    
 
 
 class Checks02Listener(coolListener):
+
+
     def __init__(self):
         # Current context class. Useful for adding methods and attributes
         self.currentClass: Klass = None
@@ -13,9 +16,50 @@ class Checks02Listener(coolListener):
         # Since we could have nesting, a nesting counter is neccesary.
         self.inwhile = False
         self.inwhileNesting = 0
+        
+        self.scopes = 0
+        
+
 
     def enterKlass(self, ctx: coolParser.KlassContext):
+        self.table = SymbolTableWithScopes(getKlass(ctx.TYPE(0).getText()))
+
         self.currentClass = getKlass(ctx.TYPE(0).getText())
+
+        
+
+
+        
+
+    def enterLetDeclear(self, ctx: coolParser.LetDeclearContext):
+        self.table.openScope()
+        self.scopes += 1
+        self.table[ctx.ID().getText()] = ctx.TYPE().getText()
+
+    def exitLet(self, ctx: coolParser.LetContext):
+        for i in range (self.scopes):
+            self.table.closeScope()
+        self.scopes = 0
+
+    def enterFormal_Expression(self, ctx: coolParser.Formal_ExpressionContext):
+        self.table[ctx.ID.getText()] = ctx.TYPE.getText()
+
+    
+    def enterAtribute(self, ctx: coolParser.AtributeContext):
+        self.table[ctx.ID.getText()] = ctx.TYPE.getText()
+
+    def enterVariable(self, ctx: coolParser.VariableContext):
+        try:
+            ctx.Tipo = self.table[ctx.getText()]
+        except KeyError:
+            raise outofscope()
+
+        
+            
+        
+
+    
+
 
     def exitAdd(self, ctx: coolParser.AddContext):
         # validar es int
@@ -27,6 +71,7 @@ class Checks02Listener(coolListener):
     # Exit cuando te importa que ya haya sido visitado los hijos y enter no importa
 
     def extiEqual(self, ctx: coolParser.EqualContext):
+    
         if (ctx.expr(0).Tipo.name == 'Int') and (ctx.expr(1).Tipo.name == 'Int'):
             ctx.Tipo = ctx.expr(0).Tipo
         else:
@@ -66,6 +111,7 @@ class Checks02Listener(coolListener):
             raise badwhilecond()
 
     def enterMetodo(self, ctx: coolParser.MetodoContext):
+        self.table.openScope()
         if ctx.TYPE().getText() == "SELF_TYPE":
             # Explanation: We cannot return SELF_TYPE from a class that returns something else than SELF_TYPE
             # We throw this exception whenever our return type is SELF_TYPE
@@ -73,3 +119,6 @@ class Checks02Listener(coolListener):
         if ctx.TYPE().getText() not in getAllKlasses():
             # Explanation: Types are registered in the Class Tree. If the type isn't defined, it won't be in it.
             raise returntypenoexist()
+
+    def exitMetodo(self, ctx: coolParser.MetodoContext):
+        self.table.closeScope()
