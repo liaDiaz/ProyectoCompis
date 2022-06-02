@@ -34,8 +34,13 @@ class HierarchyListener(coolListener):
         attrbadinitcheck(self.currentClass, ctx)
         attroverride(self.currentClass, ctx)
         attrtype = ctx.TYPE().getText()
+        #curent klass agragake el atributo
         self.currentClass.addAttribute(ctx.ID().getText(), attrtype)
+        #seteando el tipo
         ctx.Tipo = getKlassByString(attrtype)
+
+
+     
 
     def exitMetodo(self, ctx: coolParser.MetodoContext):
         parsedparams = parseParams(ctx)

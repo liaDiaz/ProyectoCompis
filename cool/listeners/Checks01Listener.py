@@ -27,7 +27,7 @@ class Checks01Listener(coolListener):
             # raise manda la excepcion
             raise letself()
 
-    def enterFormal_Expression(self, ctx: coolParser.Formal_ExpressionContext):
+    def enterFormal_Expression(self, ctx):
         if ctx.ID().getText() == 'self':
             raise selfinformalparameter()
         if ctx.TYPE().getText() == 'SELF_TYPE':
