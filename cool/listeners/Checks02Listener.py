@@ -13,7 +13,6 @@ class Checks02Listener(coolListener):
         # Since we could have nesting, a nesting counter is neccesary.
         self.inwhile = False
         self.inwhileNesting = 0
-        self.tipos = set()
 
     def enterKlass(self, ctx: coolParser.KlassContext):
         self.currentClass = getKlass(ctx.TYPE(0).getText())
@@ -80,8 +79,9 @@ class Checks02Listener(coolListener):
         ctx.casebranches = set()
 
     def enterCaseState(self, ctx: coolParser.CaseStateContext):
-        # if ctx.TYPE().getText() in self.tipos:
         if ctx.TYPE().getText() in ctx.parentCtx.casebranches:
+            # Explanation: We register each case branch type into a set, and whenever it repeats, we throw an exception.
+            # The branch set is put into the parent ctx, so that nesting is supported.
             raise caseidenticalbranch()
         else:
             ctx.parentCtx.casebranches.add(ctx.TYPE().getText())
