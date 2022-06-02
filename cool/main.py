@@ -6,6 +6,7 @@ from listeners.Checks01Listener import Checks01Listener
 from listeners.Checks02Listener import Checks02Listener
 from listeners.Checks03Listener import Checks03Listener
 from listeners.HierarchyListener import HierarchyListener
+from listeners.ListennerGenCode import ListennerGenCode
 from listeners.TreePrinterListener import TreePrinter
 from util.KlassRegistry import clearKlassTree
 
@@ -16,11 +17,12 @@ def compile(file):
     tree = parser.program()
 
     walker = ParseTreeWalker()
-    walker.walk(Checks01Listener(), tree)
-    walker.walk(HierarchyListener(), tree)
-    walker.walk(Checks02Listener(), tree)
-    walker.walk(Checks03Listener(), tree)
-    walker.walk(TreePrinter(), tree)
+    # walker.walk(Checks01Listener(), tree)
+    # walker.walk(HierarchyListener(), tree)
+    # walker.walk(Checks02Listener(), tree)
+    # walker.walk(Checks03Listener(), tree)
+    # walker.walk(TreePrinter(), tree)
+    walker.walk(ListennerGenCode(), tree)
 
 
 def dummy():
