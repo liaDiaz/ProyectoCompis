@@ -1,7 +1,7 @@
 from antlr.coolListener import coolListener
 from antlr.coolParser import coolParser
 from listeners.Writer import Writer
-from util.coolAsm import *
+from util.internal.asm import *
 
 
 class ListennerGenCode(coolListener):

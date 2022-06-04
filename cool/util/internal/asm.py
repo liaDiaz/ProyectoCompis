@@ -1,7 +1,7 @@
 from string import Template
 
 
-gdStr1 = """
+dataHeaderString = """
     .data
     .align  2
     .globl  class_nameTab
@@ -15,7 +15,7 @@ gdStr1 = """
     .globl  _string_tag
 """
 
-gdTpl1 = Template("""
+baseClassTagTemplate = Template("""
 _int_tag:
     .word   $intTag
 _bool_tag:
@@ -24,7 +24,7 @@ _string_tag:
     .word   $stringTag
 """)
 
-gdStr2 = """
+memoryManagerString = """
     .globl  _MemMgr_INITIALIZER
 _MemMgr_INITIALIZER:
     .word   _NoGC_Init
@@ -36,7 +36,7 @@ _MemMgr_TEST:
     .word   0
 """
 
-cTplInt = Template("""
+intTemplate = Template("""
     .word   -1
 int_const$idx:
     .word   $tag
@@ -45,18 +45,18 @@ int_const$idx:
     .word   $value
 """)
 
-cTplStr_empty = Template("""
+emptyStringTemplate = Template("""
     .word   -1
 str_const$idx:
     .word   $tag
-    .word   $size
+    .word   5
     .word   String_dispTab
     .word   int_const$sizeIdx
     .byte   0
     .align  2
 """)
 
-cTplStr = Template("""
+stringTemplate = Template("""
     .word   -1
 str_const$idx:
     .word   $tag
@@ -65,10 +65,10 @@ str_const$idx:
     .word   int_const$sizeIdx
     .ascii  "$value"
     .byte   0
-    .align  2
+    .align  $align
 """)
 
-boolStr = """
+boolString = """
     .word   -1
 bool_const0:
     .word   3
@@ -83,13 +83,13 @@ bool_const1:
     .word   1
 """
 
-heapStr = """
+heapString = """
    .globl  heap_start 
 heap_start:
     .word   0 
 """
 
-textStr = """
+textString = """
     .text    
     .globl  Main_init 
     .globl  Int_init 
@@ -118,7 +118,7 @@ textStr = """
 # 3? $fp, $s0, $ra
 # *4? count in words
 
-#definir: klass, method, ts=3+locals*4, fp=ts, s0=fp-4, ra=fp-8, locals
+# definir: klass, method, ts=3+locals*4, fp=ts, s0=fp-4, ra=fp-8, locals
 methodTpl_in = Template("""
 ${klass}.${method}:
     addiu   $$sp    $$sp    -$ts        #inm: frame has $locals locals
@@ -129,7 +129,7 @@ ${klass}.${method}:
     move    $$s0    $$a0                #inm: self to $$s0
 """)
 
-#definir: ts=3+locals*4, fp=ts, s0=fp-4, ra=fp-8, formals, locals, everything=formals+locals
+# definir: ts=3+locals*4, fp=ts, s0=fp-4, ra=fp-8, formals, locals, everything=formals+locals
 methodTpl_out = Template("""
     lw      $$fp    ${ts}($$sp)         #outm: restore $fp
     lw      $$s0    ${s0}($$sp)         #outm: restore $s0 (self)
@@ -151,35 +151,35 @@ selfStr = Template("""
 # En los letdecl, la expr es opcional...
 
 # Si viene, simplemente emitir expr y luego poner el valor en $a0
-#definir: $address, $symbol
+# definir: $address, $symbol
 letdeclTpl1 = Template("""
     $expr
     sw      $$a0     $address            #letdecl: initial value of $symbol
 """)
 
 # Si no viene, poner el default de cada tipo (String, Int, Bool) y en otro caso void
-#definir: stringNulo, address, symbol
+# definir: stringNulo, address, symbol
 letdeclTpl2 = Template("""
     la      $$a0    $stringNulo         #letdecl: string nulo
     sw      $$a0    $address            #letdecl: String default value, $symbol
 """)
-#definir: intZero, address, symbol
+# definir: intZero, address, symbol
 letdeclTpl3 = Template("""
     la      $$a0    $intZero            #letdecl: int zero
     sw      $$a0    $address            #letdecl: Int default value, $symbol
 """)
-#definir: boolFalse, address, symbol
-letdeclTpl2 = Template("""
+# definir: boolFalse, address, symbol
+letdeclTpl2TODOCHECKTHIS = Template("""
     la      $$a0    $boolFalse          #letdecl: boolean false
     sw      $$a0    $address            #letdecl: Boolean default value, $symbol
 """)
-#definir: address, symbol
+# definir: address, symbol
 letdeclTpl2 = Template("""
     la      $$a0    $zero               #letdecl: void
     sw      $$a0    $address            #letdecl: object default value, $symbol
 """)
 
-#definir: $address, $symbol, $klass
+# definir: $address, $symbol, $klass
 varTpl = Template("""
     lw      $$a0     $address            #obj: load [$symbol], $klass
 """)
@@ -200,7 +200,7 @@ notTpl = Template("""
 $label:
 """)
 
-#definir: left_subexp, right_subexp, 
+# definir: left_subexp, right_subexp,
 arithTpl = Template("""
 $left_subexp
     sw      $$a0     0($$sp)            #arith: push left subexp into the stack
@@ -215,7 +215,7 @@ $right_subexp
     sw      $$t1    12($$a0)            #arith: store result in copy
 """)
 
-#definir: test_subexp, true_subexp, false_subexp, label_false, label_exit
+# definir: test_subexp, true_subexp, false_subexp, label_false, label_exit
 ifTpl = Template("""
 $test_subexp
     lw      $$t1    12($$a0)            #if: get value from boolean
@@ -227,7 +227,7 @@ $false_subexp
 $label_exit:
 """)
 
-#definir: label_loop, label_exit, test_subexp, loop_subexp
+# definir: label_loop, label_exit, test_subexp, loop_subexp
 whileTpl = Template("""
 $label_loop:
 $test_subexp
@@ -239,7 +239,7 @@ $label_exit:
     move    $$a0    $$zero                  #while: must put void in $$a0
 """)
 
-#definir: label_exit
+# definir: label_exit
 isVoidTpl = Template("""
 $subexp
     move    $$t1    $$a0                    #isvoid: load self into $$t1
@@ -249,7 +249,7 @@ $subexp
 $label_exit:
 """)
 
-#definir: left_subexp, right_subexp, label_exit, ble_or_blt
+# definir: left_subexp, right_subexp, label_exit, ble_or_blt
 leTpl = Template("""
 $left_subexp
     sw      $$a0    0($$sp)                 #<: push left subexp into the stack
@@ -267,12 +267,12 @@ $right_subexp
 $label_exit:
 """)
 
-#definir: left_subexp, right_subexp, label_exit
+# definir: left_subexp, right_subexp, label_exit
 # <= El mismo que arriba pero blt en vez de ble
 letTpl = Template("""
 """)
 
-#definir: left_subexp, right_subexp, label
+# definir: left_subexp, right_subexp, label
 eqTpl = Template("""
 $left_subexp
     sw      $$a0    0($$sp)                 #=: push left subexp into the stack
@@ -292,7 +292,7 @@ $right_subexp
 $label:
 """)
 
-#definir: exp FIXME: Is exp needed???
+# definir: exp FIXME: Is exp needed???
 callParametersTpl = Template("""
     sw      $$a0    0($$sp)                 #call: push Param
     addiu   $$sp    $$sp        -4          #call:
@@ -307,13 +307,12 @@ callStr1 = Template("""
 
 # 2. (object expr).metodo( params ... )
 # 3. (object expr)@Klass.metodo( params ... )
-#definir: exp
+# definir: exp
 callStr2 = Template("""
     $exp
 """)
 
-
-#definir: fileName, line, label
+# definir: fileName, line, label
 callTpl1 = Template("""
     bne     $$a0    $$zero      $label      #call: protect from dispatch to void
     la      $$a0    $fileName               #call: constant object with name of the file
@@ -322,27 +321,27 @@ callTpl1 = Template("""
 $label:
 """)
 
-#definir: off, method
+# definir: off, method
 callTpl_instance = Template("""
     lw      $$t1    8($$a0)                 #call: ptr to dispatch table
     lw      $$t1    $off($$t1)              #call: method $method is at offset $off
     jalr    $$t1
 """)
 
-#definir: klass, off, method
+# definir: klass, off, method
 callTpl_at = Template("""
     la      $$t1    ${klass}_dispTab        #at: dispatch table for $klass
     lw      $$t1    $off($$t1)              #at: method $method is at offset $off
     jalr    $$t1
 """)
 
-#definir: address, symbol
+# definir: address, symbol
 assignTpl = Template("""
     $expr
     sw      $$a0     $address               #assignment of $symbol
 """)
 
-#definir: klass
+# definir: klass
 newTpl_explicit = Template("""
     la      $$a0    ${klass}_protObj        #new: explicit name
     jal     Object.copy                     #new: call copy
@@ -363,7 +362,7 @@ newTpl_SELF_TYPE = Template("""
     jalr    $$t1                            #new: call _init
 """)
 
-#definir: test_expr, fileName, line, labelNotVoid
+# definir: test_expr, fileName, line, labelNotVoid
 caseTpl_begin = Template("""
     $test_expr
     bne     $$a0    $$zero  $labelNotVoid      #case: protect from case on void (abort)
@@ -374,7 +373,7 @@ $labelNotVoid:
     lw      $$t1    0($$a0)                 #case: load obj tag
 """)
 
-#definir: minChild, maxChild, nLbl, address, symbol, expr, labelEnd
+# definir: minChild, maxChild, nLbl, address, symbol, expr, labelEnd
 caseBranch = Template("""
     blt     $$t1    $minChild   $nextLbl    #case: $minChild, $name
     bgt     $$t1    $maxChild   $nextLbl    #case: $maxChild, $name
@@ -384,7 +383,7 @@ $exp
 $nextLbl:
 """)
 
-#definir: labelEnd
+# definir: labelEnd
 caseTpl_end = Template("""
     jal     _case_abort                     #case: default
 $endLbl:
