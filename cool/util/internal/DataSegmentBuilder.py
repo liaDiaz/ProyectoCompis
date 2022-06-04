@@ -1,5 +1,6 @@
 from math import ceil
 
+from util.KlassRegistry import getAllKlasses
 from util.internal.asm import *
 
 
@@ -104,7 +105,24 @@ class DataSegmentBuilder:
         self.__generateProtoObjects()
 
     def __addNameTable(self):
-        pass
+        self.output += self._buildNameTableFragment()
+
+    def _buildNameTableFragment(self):
+        baseKlasses = ['Object', 'IO', 'Int', 'Bool', 'String']
+        nameTableFragment = nameTabHeaderString
+        # Add base klass strings in case they don't exist.
+        # Strict order needed
+        for klass in baseKlasses:
+            self.addString(klass)
+            # Generate the first rows for base klasses
+            nameTableFragment += nameTabRowTemplate.substitute(idx=self.strIndexes[klass])
+        # Generate rows for new klasses
+        for klass in getAllKlasses().keys():
+            if klass in baseKlasses:
+                continue
+            self.addString(klass)
+            nameTableFragment += nameTabRowTemplate.substitute(idx=self.strIndexes[klass])
+        return nameTableFragment
 
     def __addDispatchTablesSegment(self):
         pass

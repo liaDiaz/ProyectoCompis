@@ -1,6 +1,7 @@
 import textwrap
 import unittest
 
+from util.KlassRegistry import setKlassByString
 from util.internal.DataSegmentBuilder import DataSegmentBuilder
 
 
@@ -50,3 +51,16 @@ class DataSegmentBuilderTests(unittest.TestCase):
         self.builder.addString("Main")
         self.assertMultiLineEqual(textwrap.dedent(self.builder.strCodeFragments.pop()), shouldbe)
         # self.assertIn("")
+
+    def test_buildNameTableFragment(self):
+        # Add dummy main class to klassHierarchy
+        setKlassByString("Main", None)
+        shouldbe = textwrap.dedent("""
+        class_nameTab:
+            .word   str_const0
+            .word   str_const1
+            .word   str_const2
+            .word   str_const3
+            .word   str_const4
+            .word   str_const5""")
+        self.assertMultiLineEqual(self.builder._buildNameTableFragment(), shouldbe)

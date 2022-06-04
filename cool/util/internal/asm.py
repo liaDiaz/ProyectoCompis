@@ -68,6 +68,11 @@ str_const$idx:
     .align  $align
 """)
 
+nameTabHeaderString = """
+class_nameTab:"""
+nameTabRowTemplate = Template("""
+    .word   str_const$idx""")
+
 boolString = """
     .word   -1
 bool_const0:
