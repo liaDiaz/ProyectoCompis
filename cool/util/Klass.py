@@ -5,6 +5,13 @@ from util.internal.HierarchyException import HierarchyException
 from util.internal.SymbolTable import SymbolTable
 
 
+def recursiveGetAllAttributes(output, klass):
+    output[klass.name] = klass.attributes
+    if klass.name == "Object":
+        return output
+    recursiveGetAllAttributes(output, getKlassByString(klass.inherits))
+
+
 class Klass:
     """
     Agrupación de features (atributos y métodos).
@@ -48,6 +55,9 @@ class Klass:
     def addMethod(self, name: str, method: Method):
         self.methods[name] = method
 
+    def getAllAttributes(self):
+        return recursiveGetAllAttributes({}, self)
+
     def getOwnAttribute(self, name: str):
         """
         Lookup an attribute on this class only
@@ -78,6 +88,13 @@ class Klass:
         else:
             return getKlassByString(self.inherits).lookupMethod(name)
 
+    def getAllMethods(self):
+        """
+        Get all methods in this class and parents
+        Returns object:str : [method:str]
+        """
+        return recursiveGetAllMethods({}, self)
+
     def conforms(self, B):
         """
         self <= B, esto es, puedo asignar a una variable de esta clase
@@ -93,6 +110,20 @@ class Klass:
 
     def __str__(self):
         return self.name
+
+
+def recursiveGetAllMethods(output, klass):
+    """
+    Go from the bottom to the top, adding methods
+    :param output: current obj:meth dict
+    :param klass:
+    :return: object:str : [method:str]
+    """
+    output[klass.name] = list(klass.methods.keys())
+    if klass.name == "Object":
+        return output
+    if klass.inherits:
+        return recursiveGetAllMethods(output, getKlassByString(klass.inherits))
 
 
 def setBaseKlasses():

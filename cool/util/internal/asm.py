@@ -1,6 +1,5 @@
 from string import Template
 
-
 dataHeaderString = """
     .data
     .align  2
@@ -70,8 +69,35 @@ str_const$idx:
 
 nameTabHeaderString = """
 class_nameTab:"""
+
 nameTabRowTemplate = Template("""
     .word   str_const$idx""")
+
+objectTableHeaderString = """
+class_objTab:"""
+
+objectTableRowTemplate = Template("""
+    .word   ${name}_protObj
+    .word   ${name}_init""")
+
+dispatchTableHeaderTemplate = Template("""
+${objectname}_dispTab:""")
+
+dispatchTableRowTemplate = Template("""
+    .word   ${objectname}.${methodname}""")
+
+protoObjectTableHeaderTemplate = Template("""
+    .word   -1
+${objectname}_protObj:""")
+
+protoObjectTableTemplate = Template("""
+    .word   $classCounter
+    .word   $numberofRows
+    .word   ${objname}_dispTab""")
+
+wordTemplate = Template("""
+    .word   $content
+""")
 
 boolString = """
     .word   -1

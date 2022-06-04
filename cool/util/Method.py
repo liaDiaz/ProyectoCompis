@@ -1,7 +1,7 @@
 from util.internal.SymbolTable import SymbolTable
 
 
-class Method():
+class Method:
     """
     Se usa una tabla de símbolos lineal para
     almacenar los tipos de los parámetros.

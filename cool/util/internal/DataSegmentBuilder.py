@@ -1,3 +1,4 @@
+import random
 from math import ceil
 
 from util.KlassRegistry import getAllKlasses
@@ -6,6 +7,45 @@ from util.internal.asm import *
 
 def round_to_nearest(n, m):
     return (n + m - 1) // m * m
+
+
+def _buildObjectTableFragment():
+    """
+    Dead simple assembly. Refer to assembly.png
+    :return:
+    """
+    objtableFrag = objectTableHeaderString
+
+    for klass in getAllKlasses():
+        objtableFrag += objectTableRowTemplate.substitute(name=klass)
+    return objtableFrag
+
+
+def _buildObjectDTFragment(klassInstance):
+    """
+    Iterate on klassInstance and get an asm fragment containing all of the methods in objects and parents
+    :param klassInstance:
+    :return:
+    """
+    fragment = dispatchTableHeaderTemplate.substitute(objectname=klassInstance.name)
+    thing = klassInstance.getAllMethods()
+    for obj, methods in thing.items():
+        # cuz we have a KeysView instead of a method
+        for method in list(methods):
+            fragment += dispatchTableRowTemplate.substitute(objectname=obj, methodname=method)
+
+    return fragment
+
+
+def _buildDispatchTableFragment():
+    """
+    Create the dispatch table. All method names, included parents
+    """
+    output = ""
+    for klassInstance in getAllKlasses().values():
+        print(klassInstance.name)
+        output += _buildObjectDTFragment(klassInstance)
+    return output
 
 
 class DataSegmentBuilder:
@@ -102,12 +142,15 @@ class DataSegmentBuilder:
         self.__addNameTable()
         self.__addObjTable()
         self.__addDispatchTablesSegment()
-        self.__generateProtoObjects()
+        self.__addProtoObjects()
 
     def __addNameTable(self):
         self.output += self._buildNameTableFragment()
 
     def _buildNameTableFragment(self):
+        """
+        Build a simple name table, with all the base objects in order and the rest in the hierarchical order.
+        """
         baseKlasses = ['Object', 'IO', 'Int', 'Bool', 'String']
         nameTableFragment = nameTabHeaderString
         # Add base klass strings in case they don't exist.
@@ -125,10 +168,33 @@ class DataSegmentBuilder:
         return nameTableFragment
 
     def __addDispatchTablesSegment(self):
-        pass
+        self.output += _buildDispatchTableFragment()
 
-    def __generateProtoObjects(self):
-        pass
+    def __addProtoObjects(self):
+        self.output += self._buildProtoObjects()
 
     def __addObjTable(self):
-        pass
+        self.output += _buildObjectTableFragment()
+
+    def _buildProtoObjects(self):
+        output = ""
+        counter = 0
+        for klass in getAllKlasses().values():
+            output += protoObjectTableHeaderTemplate.substitute(objectname=klass.name)
+            # Build variable rows
+            attributeRows = []
+
+            if klass.getAllAttributes():
+                # f1xme how do these work?
+                for attr in klass.getAllAttributes().keys():
+                    attributeRows += wordTemplate.substitute(content=random.randint(0, 10))
+
+            # Add size of object
+            output += protoObjectTableTemplate.substitute(classCounter=counter, numberofRows=len(attributeRows) + 3,
+                                                          objname=klass.name)
+            for a in attributeRows:
+                output += a
+
+            counter += 1
+
+        return output
