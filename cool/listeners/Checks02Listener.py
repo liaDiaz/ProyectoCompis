@@ -26,14 +26,15 @@ class Checks02Listener(coolListener):
 
     # Exit cuando te importa que ya haya sido visitado los hijos y enter no importa
 
-    def extiEqual(self, ctx: coolParser.EqualContext):
-        if (ctx.expr(0).Tipo.name == 'Int') and (ctx.expr(1).Tipo.name == 'Int'):
-            ctx.Tipo = ctx.expr(0).Tipo
-        else:
+    def exitEqual(self, ctx: coolParser.EqualContext):
+        expr = [ctx.expr(i).Tipo.name for i in range(1)]
+        if "Int" in expr and "Bool" in expr:
+            # Explanation: Very specific test case. Will check if Int and Bool are in the same eq
             raise badequalitytest()
-        if ((ctx.expr(0).Tipo.name == 'Int') and (
-                (ctx.expr(1).Tipo.name == 'BoolTrue') or (ctx.expr(1).Tipo.name == 'BoolFalse'))):
+        if expr[0] != expr[1]:
+            # Explanation: Catchall for every other case in which the types aren't the same
             raise badequalitytest2()
+        ctx.Tipo = ctx.expr(0).Tipo
 
     def enterCall(self, ctx: coolParser.CallContext):
         try:
