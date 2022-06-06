@@ -3,11 +3,10 @@ from antlr.coolParser import coolParser
 from util.Klass import Klass
 from util.KlassRegistry import getAllKlasses, getKlass, getKlassByString
 from util.exceptions import *
-from util.internal.SymbolTableWithScopes import SymbolTableWithScopes    
+from util.internal.SymbolTableWithScopes import SymbolTableWithScopes
 
 
 class Checks02Listener(coolListener):
-
 
     def __init__(self):
         # Current context class. Useful for adding methods and attributes
@@ -16,20 +15,12 @@ class Checks02Listener(coolListener):
         # Since we could have nesting, a nesting counter is neccesary.
         self.inwhile = False
         self.inwhileNesting = 0
-        
-        self.scopes = 0
-        
 
+        self.scopes = 0
 
     def enterKlass(self, ctx: coolParser.KlassContext):
         self.table = SymbolTableWithScopes(getKlass(ctx.TYPE(0).getText()))
-
         self.currentClass = getKlass(ctx.TYPE(0).getText())
-
-        
-
-
-        
 
     def enterLetDeclear(self, ctx: coolParser.LetDeclearContext):
         self.table.openScope()
@@ -37,29 +28,21 @@ class Checks02Listener(coolListener):
         self.table[ctx.ID().getText()] = ctx.TYPE().getText()
 
     def exitLet(self, ctx: coolParser.LetContext):
-        for i in range (self.scopes):
+        for i in range(self.scopes):
             self.table.closeScope()
         self.scopes = 0
 
     def enterFormal_Expression(self, ctx: coolParser.Formal_ExpressionContext):
-        self.table[ctx.ID.getText()] = ctx.TYPE.getText()
+        self.table[ctx.ID().getText()] = ctx.TYPE().getText()
 
-    
     def enterAtribute(self, ctx: coolParser.AtributeContext):
-        self.table[ctx.ID.getText()] = ctx.TYPE.getText()
+        self.table[ctx.ID().getText()] = ctx.TYPE().getText()
 
     def enterVariable(self, ctx: coolParser.VariableContext):
         try:
-            ctx.Tipo = self.table[ctx.getText()]
+            ctx.Tipo = getKlassByString(self.table[ctx.getText()])
         except KeyError:
             raise outofscope()
-
-        
-            
-        
-
-    
-
 
     def exitAdd(self, ctx: coolParser.AddContext):
         # validar es int
@@ -68,16 +51,18 @@ class Checks02Listener(coolListener):
         else:
             raise badarith()
 
-    # Exit cuando te importa que ya haya sido visitado los hijos y enter no importa
+    def exitBase(self, ctx: coolParser.BaseContext):
+        ctx.Tipo = ctx.getChild(0).Tipo
 
-    def extiEqual(self, ctx: coolParser.EqualContext):
-    
-        if (ctx.expr(0).Tipo.name == 'Int') and (ctx.expr(1).Tipo.name == 'Int'):
-            ctx.Tipo = ctx.expr(0).Tipo
-        else:
+    def exitEqual(self, ctx: coolParser.EqualContext):
+        expr = [ctx.expr(i).Tipo.name for i in range(2)]
+        if "Int" in expr and "Bool" in expr:
+            # Explanation: Very specific test case. Will check if Int and Bool are in the same eq
+            raise badequalitytest2()
+        if expr[0] != expr[1]:
+            # Explanation: Catchall for every other case in which the types aren't the same
             raise badequalitytest()
-        # if((ctx.expr(0).Tipo.name == 'Int' ) and ((ctx.expr(1).Tipo.name =='BoolTrue') or (ctx.expr(1).Tipo.name =='BoolFalse'))):
-        #     raise badequalitytest2()
+        ctx.Tipo = ctx.expr(0).Tipo
 
     def enterCall(self, ctx: coolParser.CallContext):
         try:
