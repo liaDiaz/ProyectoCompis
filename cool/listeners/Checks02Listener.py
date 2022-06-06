@@ -17,42 +17,15 @@ class Checks02Listener(coolListener):
         self.inwhile = False
         self.inwhileNesting = 0
         
-        self.scopes = 0
+
         
 
 
     def enterKlass(self, ctx: coolParser.KlassContext):
-        self.table = SymbolTableWithScopes(getKlass(ctx.TYPE(0).getText()))
 
         self.currentClass = getKlass(ctx.TYPE(0).getText())
 
         
-
-
-        
-
-    def enterLetDeclear(self, ctx: coolParser.LetDeclearContext):
-        self.table.openScope()
-        self.scopes += 1
-        self.table[ctx.ID().getText()] = ctx.TYPE().getText()
-
-    def exitLet(self, ctx: coolParser.LetContext):
-        for i in range (self.scopes):
-            self.table.closeScope()
-        self.scopes = 0
-
-    def enterFormal_Expression(self, ctx: coolParser.Formal_ExpressionContext):
-        self.table[ctx.ID.getText()] = ctx.TYPE.getText()
-
-    
-    def enterAtribute(self, ctx: coolParser.AtributeContext):
-        self.table[ctx.ID.getText()] = ctx.TYPE.getText()
-
-    def enterVariable(self, ctx: coolParser.VariableContext):
-        try:
-            ctx.Tipo = self.table[ctx.getText()]
-        except KeyError:
-            raise outofscope()
 
         
             
@@ -111,7 +84,7 @@ class Checks02Listener(coolListener):
             raise badwhilecond()
 
     def enterMetodo(self, ctx: coolParser.MetodoContext):
-        self.table.openScope()
+
         if ctx.TYPE().getText() == "SELF_TYPE":
             # Explanation: We cannot return SELF_TYPE from a class that returns something else than SELF_TYPE
             # We throw this exception whenever our return type is SELF_TYPE
@@ -120,5 +93,3 @@ class Checks02Listener(coolListener):
             # Explanation: Types are registered in the Class Tree. If the type isn't defined, it won't be in it.
             raise returntypenoexist()
 
-    def exitMetodo(self, ctx: coolParser.MetodoContext):
-        self.table.closeScope()

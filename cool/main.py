@@ -6,6 +6,7 @@ from listeners.Checks01Listener import Checks01Listener
 from listeners.Checks02Listener import Checks02Listener
 from listeners.Checks03Listener import Checks03Listener
 from listeners.HierarchyListener import HierarchyListener
+from listeners.ChecksoosListener import ChecksoosListener
 from listeners.TreePrinterListener import TreePrinter
 from util.KlassRegistry import clearKlassTree
 
@@ -20,6 +21,7 @@ def compile(file):
     walker.walk(HierarchyListener(), tree)
     walker.walk(Checks02Listener(), tree)
     walker.walk(Checks03Listener(), tree)
+    walker.walk(ChecksoosListener(), tree)
     walker.walk(TreePrinter(), tree)
 
 
