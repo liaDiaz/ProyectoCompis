@@ -63,12 +63,11 @@ def classCreationChecks(mainType, inheritance=None):
         raise redefinedclass()
 
 
-def attroverride(currentClass, ctx):
+def _attroverridecheck(currentClass, ctx):
     try:
         variablename = ctx.ID().getText()
         # First, check for the attribute existing on the class tree
         # A keyerror would mean the variable isn't defined
-        # FIXME method params will not be checked.
         currentClass.lookupAttribute(variablename)
         # Secondly, if the attribute is on the class tree, but it's *not*
         # on the current class, it means we're redefining a parent attribute.

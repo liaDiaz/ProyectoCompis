@@ -1,7 +1,7 @@
 from antlr.coolListener import coolListener
 from antlr.coolParser import coolParser
 from listeners.HierarchyChecks import classCreationChecks, signaturechangecheck, parseParams, \
-    differentparamtypeoverridecheck, attroverride
+    differentparamtypeoverridecheck, _attroverridecheck
 from util.Klass import Klass, setBaseKlasses
 from util.KlassRegistry import getKlassByString
 from util.Method import Method
@@ -31,7 +31,7 @@ class HierarchyListener(coolListener):
         self.currentClass = clase
 
     def enterAtribute(self, ctx: coolParser.AtributeContext):
-        attroverride(self.currentClass, ctx)
+        _attroverridecheck(self.currentClass, ctx)
         attrtype = ctx.TYPE().getText()
         #curent klass agragake el atributo
         self.currentClass.addAttribute(ctx.ID().getText(), attrtype)
