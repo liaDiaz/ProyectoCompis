@@ -80,18 +80,14 @@ def attroverride(currentClass, ctx):
         pass
 
 
-def attrbadinitcheck(currentClass, ctx):
+def attrbadinitcheck(table, currentClass, ctx):
     # If this is an add attribute with the shape [ID : TYPE  '<-' expr]
     # where expr is a variable, check if said variable exists on the class
     if ctx.expr():
         if type(ctx.expr()) == coolParser.BaseContext:
             if type(ctx.expr().children[0]) == coolParser.VariableContext:
                 try:
-                    variablename = ctx.expr().children[0].getText()
-                    # First, check for the attribute existing on the class tree
-                    # A keyerror would mean the variable isn't defined
-                    # FIXME method params will not be checked.
-                    currentClass.lookupAttribute(variablename)
+                    table[ctx.expr().children[0].getText()]
                 except KeyError:
-                    # Explanation: See above
+                    # Explanation: If the symbol isn't defined on the current scope, raise
                     raise attrbadinit()
