@@ -37,7 +37,7 @@ class Checks02Listener(coolListener):
     def enterLetDeclear(self, ctx: coolParser.LetDeclearContext):
         self.table.openScope()
         self.scopes += 1
-        self.table[ctx.ID().getText()] = ctx.TYPE().getText()
+        self.table[ctx.ID().getText()] = getKlassByString(ctx.TYPE().getText())
 
     def exitLet(self, ctx: coolParser.LetContext):
         for i in range(self.scopes):
@@ -51,8 +51,17 @@ class Checks02Listener(coolListener):
         self.table[ctx.ID().getText()] = getKlassByString(ctx.TYPE().getText())
         attrbadinitcheck(self.table, self.currentClass, ctx)
 
+    def exitSubexpresion(self, ctx: coolParser.SubexpresionContext):
+        ctx.Tipo = ctx.expr().Tipo
+
+    def exitNew(self, ctx: coolParser.NewContext):
+        ctx.Tipo = getKlassByString(ctx.TYPE().getText())
+
     def enterVariable(self, ctx: coolParser.VariableContext):
         # Case statements are weird. They are IDs, but they cannot be set in another way than to check the parent's parent for the type
+        if ctx.getText() == "self":
+            ctx.Tipo = self.currentClass
+            return
         if type(ctx.parentCtx.parentCtx) != coolParser.CaseStateContext:
             try:
                 ctx.Tipo = self.table[ctx.getText()]
@@ -81,7 +90,7 @@ class Checks02Listener(coolListener):
             raise badequalitytest()
         ctx.Tipo = ctx.expr(0).Tipo
 
-    def enterCall(self, ctx: coolParser.CallContext):
+    def exitCall(self, ctx: coolParser.CallContext):
         try:
             self.currentClass.lookupMethod(ctx.ID().getText())
         except KeyError:
@@ -91,12 +100,15 @@ class Checks02Listener(coolListener):
                 # this would require a decorator that checks for in-while-condition before every exception
                 # Here we only patch the specific case in which it breaks
                 raise badwhilebody()
-            # Explanation: This is an exploit on the lookupMethod functionality:
-            # A method can only be called if it's on the classes above them
-            # BadDispatch checks for methods called in parent classes, defined on child classes.
-            # This means we only need to check every parent, and if not found, raise the exception
-            # Although this could mean the method doesn't even EXIST
-            raise baddispatch()
+            try:
+                ctx.expr(0).Tipo.lookupMethod(ctx.ID().getText())
+                # Explanation: This is an exploit on the lookupMethod functionality:
+                # A method can only be called if it's on the classes above them
+                # BadDispatch checks for methods called in parent classes, defined on child classes.
+                # This means we only need to check every parent, and if not found, raise the exception
+                # Although this could mean the method doesn't even EXIST
+            except KeyError:
+                raise baddispatch()
 
     def enterWhile(self, ctx: coolParser.WhileContext):
         self.inwhile = True
