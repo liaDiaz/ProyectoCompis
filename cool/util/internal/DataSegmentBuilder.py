@@ -63,7 +63,7 @@ class DataSegmentBuilder:
         self.strIndexes = {}
 
         self.output = dataHeaderString + baseClassTagTemplate.substitute(intTag=self.inttag, boolTag=self.booltag,
-                                                                         stringTag=self.stringTag)
+                                                                         stringTag=self.stringTag) + memoryManagerString
 
     def addInt(self, number):
         """
