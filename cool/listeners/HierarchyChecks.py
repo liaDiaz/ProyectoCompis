@@ -92,3 +92,5 @@ def attrbadinitcheck(table, currentClass, ctx):
                 except KeyError:
                     # Explanation: If the symbol isn't defined on the current scope, raise
                     raise attrbadinit()
+
+
