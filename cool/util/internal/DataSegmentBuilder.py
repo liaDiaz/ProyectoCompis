@@ -116,7 +116,7 @@ class DataSegmentBuilder:
 
     def __getStringData(self, s):
         """
-        The easiest way to get stupid string alues
+        The easiest way to get stupid string values
         """
         # First, get (or create) the int Object for representing the string's size
         # "Main" == 4
