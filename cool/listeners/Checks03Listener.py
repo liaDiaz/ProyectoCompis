@@ -47,4 +47,4 @@ class Checks03Listener(coolListener):
         while ctx.expr(currentexpr):
             passedparams.append(ctx.expr(currentexpr).Tipo.name)
             currentexpr += 1
-        return passedparams
+        return passedparams 

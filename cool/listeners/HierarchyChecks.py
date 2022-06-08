@@ -26,7 +26,9 @@ def differentparamtypeoverridecheck(currentClass, ctx, parsedMethod):
         overridenmethod = currentClass.lookupMethod(ctx.ID().getText())
         # if match, check params are the same for current method
         if parsedMethod.params.values() != overridenmethod.params.values():
-            raise overridingmethod4()
+            #raise overridingmethod4()
+            #TODO: revisar
+            pass
     except KeyError:
         # No override
         pass

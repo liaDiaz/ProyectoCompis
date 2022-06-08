@@ -5,7 +5,6 @@ class A {
   foo(x:Int) : Object {while true loop x pool};
 };
 
-class C inherits B { bar(): Object {10}; };
 
 class B inherits A {
   foo(x:Int): Object {self@C.bar()};
@@ -14,6 +13,7 @@ class B inherits A {
 
 
 
+class C inherits B { bar(): Object {10}; };
 
 
 

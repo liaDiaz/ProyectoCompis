@@ -43,6 +43,13 @@ class Klass:
                 # Explanation: MissingClass happens whenever we inherit from a nonexistent class.
                 # Going up the class hierarchy tree and not finding a key means the inherited class is nonexistent.
                 raise missingclass()
+    def validHerarchy(self,klase):
+        up = self.inherits
+        # Buscar hacia arriba hasta llegar a object
+        while up != "Object":
+            if up == klase: return True
+            up = getKlassByString(up).inherits
+        return False            
 
     def addAttribute(self, attribute_name: str, attribute_type: str):
         try:

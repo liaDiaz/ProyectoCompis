@@ -36,7 +36,7 @@ class HierarchyListener(coolListener):
         #curent klass agragake el atributo
         self.currentClass.addAttribute(ctx.ID().getText(), attrtype)
         #seteando el tipo
-        ctx.Tipo = getKlassByString(attrtype)
+        #ctx.Tipo = getKlassByString(attrtype)
 
 
      

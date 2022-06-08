@@ -137,4 +137,17 @@ class Checks02Listener(coolListener):
         self.table.closeScope()
 
     def exitProgram(self, ctx: coolParser.ProgramContext):
-        ctx.table = self.table
+        ctx.table = self.table  
+    def exitAssign(self, ctx: coolParser.AssignContext):
+        if (self.table[ctx.ID().getText()].conforms(ctx.expr().Tipo)==False):
+            raise assignnoconform()
+
+    def exitBase(self, ctx: coolParser.BaseContext):
+        ctx.Tipo = ctx.getChild(0).Tipo
+
+    def exitParentCall(self, ctx: coolParser.ParentCallContext):
+        if(not ctx.expr(0).Tipo.validHerarchy(ctx.TYPE().getText())): 
+            raise badstaticdispatch
+               
+        
+
