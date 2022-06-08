@@ -43,6 +43,10 @@ class Checks02Listener(coolListener):
             self.table.closeScope()
         self.scopes = 0
 
+        if(ctx.let_decl() and ctx.expr()):
+            if(ctx.let_decl()[0].TYPE().getText() != ctx.expr().Tipo.name):
+                raise letbadinit()
+
     def enterFormal_Expression(self, ctx: coolParser.Formal_ExpressionContext):
         self.table[ctx.ID().getText()] = getKlassByString(ctx.TYPE().getText())
 
@@ -75,6 +79,8 @@ class Checks02Listener(coolListener):
             ctx.Tipo = ctx.expr(0).Tipo
         else:
             raise badarith()
+
+
 
     def exitBase(self, ctx: coolParser.BaseContext):
         ctx.Tipo = ctx.getChild(0).Tipo
@@ -146,8 +152,21 @@ class Checks02Listener(coolListener):
         ctx.Tipo = ctx.getChild(0).Tipo
 
     def exitParentCall(self, ctx: coolParser.ParentCallContext):
-        if(not ctx.expr(0).Tipo.validHerarchy(ctx.TYPE().getText())): 
-            raise badstaticdispatch
+        if(not ctx.expr(0).Tipo.validHerarchy(ctx.TYPE().getText())):
+            if(getKlassByString(ctx.TYPE().getText())).validHerarchy(ctx.expr(0).Tipo):
+                raise badstaticdispatch()
+            else:
+                raise trickyatdispatch2()
+
+    
+
+
+    def exitIf(self, ctx: coolParser.IfContext):
+        if (not ctx.getChild(1).Tipo.validHerarchy(type(ctx.parentCtx.parentCtx))) or (not ctx.getChild(2).Tipo.validHerarchy(type(ctx.parentCtx.parentCtx))) :
+                raise lubtest()
+
+
+    
                
         
 
